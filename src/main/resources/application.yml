@@ -1,0 +1,6 @@
+
+spring:
+  r2dbc:
+    username: postgres
+    password: pass
+    url: r2dbc:postgresql://localhost:5432/postgres?schema=anime
