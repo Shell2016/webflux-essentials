@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.michaelshell.webfluxessentials.dto.AnimeDto;
 import ru.michaelshell.webfluxessentials.entity.Anime;
 import ru.michaelshell.webfluxessentials.service.AnimeService;
 
@@ -29,8 +28,8 @@ public class AnimeController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Anime> save(@Valid @RequestBody AnimeDto animeDto) {
-        return animeService.save(animeDto);
+    public Mono<Anime> save(@Valid @RequestBody Anime anime) {
+        return animeService.save(anime);
     }
 
     @PutMapping("{id}")
