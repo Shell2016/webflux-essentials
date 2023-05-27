@@ -3,11 +3,11 @@ package ru.michaelshell.webfluxessentials.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.michaelshell.webfluxessentials.dto.CreateAnimeDto;
 import ru.michaelshell.webfluxessentials.entity.Anime;
 import ru.michaelshell.webfluxessentials.repository.AnimeRepository;
 
@@ -29,5 +29,19 @@ public class AnimeService {
 
     private Mono<Anime> responseStatusNotFoundException() {
         return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Anime not found"));
+    }
+
+
+    public Mono<Anime> save(CreateAnimeDto createAnimeDto) {
+        return animeRepository.save(Anime.builder()
+                .name(createAnimeDto.name())
+                .build());
+    }
+
+    public Mono<Void> update(Anime anime) {
+        return findById(anime.getId())
+                .map(animeToUpdate -> anime.withId(animeToUpdate.getId()))
+                .flatMap(animeRepository::save)
+                .thenEmpty(Mono.empty());
     }
 }

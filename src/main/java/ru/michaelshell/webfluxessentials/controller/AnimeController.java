@@ -1,14 +1,13 @@
 package ru.michaelshell.webfluxessentials.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.michaelshell.webfluxessentials.dto.CreateAnimeDto;
 import ru.michaelshell.webfluxessentials.entity.Anime;
-import ru.michaelshell.webfluxessentials.repository.AnimeRepository;
 import ru.michaelshell.webfluxessentials.service.AnimeService;
 
 @RestController
@@ -26,5 +25,17 @@ public class AnimeController {
     @GetMapping("{id}")
     public Mono<Anime> findById(@PathVariable Integer id) {
         return animeService.findById(id);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<Anime> save(@Valid @RequestBody CreateAnimeDto createAnimeDto) {
+        return animeService.save(createAnimeDto);
+    }
+
+    @PutMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<Void> update(@Valid @RequestBody Anime anime) {
+        return animeService.update(anime);
     }
 }

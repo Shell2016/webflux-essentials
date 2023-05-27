@@ -1,7 +1,6 @@
 package ru.michaelshell.webfluxessentials.entity;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
@@ -17,6 +16,6 @@ public class Anime {
     @Id
     Integer id;
 
-    @NotEmpty(message = "The name cannot be empty")
+    @NotBlank(message = "The name cannot be empty")
     String name;
 }
