@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.michaelshell.webfluxessentials.dto.CreateAnimeDto;
+import ru.michaelshell.webfluxessentials.dto.AnimeDto;
 import ru.michaelshell.webfluxessentials.entity.Anime;
 import ru.michaelshell.webfluxessentials.service.AnimeService;
 
@@ -29,13 +29,20 @@ public class AnimeController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Anime> save(@Valid @RequestBody CreateAnimeDto createAnimeDto) {
-        return animeService.save(createAnimeDto);
+    public Mono<Anime> save(@Valid @RequestBody AnimeDto animeDto) {
+        return animeService.save(animeDto);
     }
 
-    @PutMapping
+    @PutMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Mono<Void> update(@Valid @RequestBody Anime anime) {
-        return animeService.update(anime);
+    public Mono<Void> update(@Valid @RequestBody Anime anime,
+                             @PathVariable int id) {
+        return animeService.update(anime.withId(id));
+    }
+
+    @DeleteMapping("{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<Void> delete(@PathVariable int id) {
+        return animeService.delete(id);
     }
 }

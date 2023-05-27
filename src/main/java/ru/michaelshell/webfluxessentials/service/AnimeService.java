@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.michaelshell.webfluxessentials.dto.CreateAnimeDto;
+import ru.michaelshell.webfluxessentials.dto.AnimeDto;
 import ru.michaelshell.webfluxessentials.entity.Anime;
 import ru.michaelshell.webfluxessentials.repository.AnimeRepository;
 
@@ -32,16 +32,20 @@ public class AnimeService {
     }
 
 
-    public Mono<Anime> save(CreateAnimeDto createAnimeDto) {
+    public Mono<Anime> save(AnimeDto animeDto) {
         return animeRepository.save(Anime.builder()
-                .name(createAnimeDto.name())
+                .name(animeDto.name())
                 .build());
     }
 
     public Mono<Void> update(Anime anime) {
         return findById(anime.getId())
-                .map(animeToUpdate -> anime.withId(animeToUpdate.getId()))
                 .flatMap(animeRepository::save)
-                .thenEmpty(Mono.empty());
+                .then();
+    }
+
+    public Mono<Void> delete(int id) {
+        return findById(id)
+                .flatMap(animeRepository::delete);
     }
 }
