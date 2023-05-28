@@ -1,6 +1,7 @@
 package ru.michaelshell.webfluxessentials.service;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,8 @@ import reactor.test.StepVerifier;
 import ru.michaelshell.webfluxessentials.entity.Anime;
 import ru.michaelshell.webfluxessentials.repository.AnimeRepository;
 import ru.michaelshell.webfluxessentials.util.AnimeCreator;
+
+import java.time.Duration;
 
 import static org.mockito.Mockito.when;
 
@@ -33,6 +36,21 @@ class AnimeServiceTest {
     @BeforeAll
     static void blockHoundSetup() {
         BlockHound.install();
+    }
+
+    @Test
+    @Disabled("blockhound tested")
+    void blockhound() {
+        Mono.delay(Duration.ofMillis(1))
+                .doOnNext(it -> {
+                    try {
+                        Thread.sleep(10);
+                    }
+                    catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .block(); // should throw an exception about Thread.sleep
     }
 
     @Test
@@ -118,6 +136,7 @@ class AnimeServiceTest {
                 .expectSubscription()
                 .expectError(ResponseStatusException.class)
                 .verify();
+
     }
 
 
