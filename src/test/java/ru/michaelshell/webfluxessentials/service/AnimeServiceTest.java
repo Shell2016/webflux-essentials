@@ -1,6 +1,9 @@
 package ru.michaelshell.webfluxessentials.service;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
@@ -17,7 +20,7 @@ import ru.michaelshell.webfluxessentials.util.AnimeCreator;
 
 import java.time.Duration;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 class AnimeServiceTest {
@@ -35,19 +38,13 @@ class AnimeServiceTest {
         BlockHound.install();
     }
 
-    @BeforeEach
-    void setUp() {
-        when(animeRepositoryMock.findAll()).thenReturn(Flux.just(anime));
-        when(animeRepositoryMock.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.just(anime));
-    }
-
     @Test
     @Disabled("blockhound tested")
-    void blockhound() {
+    void blockhound() { //NOSONAR
         Mono.delay(Duration.ofMillis(1))
                 .doOnNext(it -> {
                     try {
-                        Thread.sleep(10);
+                        Thread.sleep(10); //NOSONAR
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -58,6 +55,8 @@ class AnimeServiceTest {
     @Test
     @DisplayName("findAll return a flux of anime")
     void findAllReturnFluxWhenSuccessful() {
+        when(animeRepositoryMock.findAll()).thenReturn(Flux.just(anime));
+
         StepVerifier.create(animeService.findAll())
                 .expectSubscription()
                 .expectNext(anime)
@@ -67,6 +66,8 @@ class AnimeServiceTest {
     @Test
     @DisplayName("findById return Mono of anime")
     void findByIdReturnsMono() {
+        when(animeRepositoryMock.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.just(anime));
+
         StepVerifier.create(animeService.findById(1))
                 .expectSubscription()
                 .expectNext(anime)
@@ -84,6 +85,57 @@ class AnimeServiceTest {
                 .verify();
     }
 
+    @Test
+    @DisplayName("save returns mono of anime")
+    void saveReturnsMono() {
+        Anime animeToSave = AnimeCreator.createAnimeToSave();
+        when(animeRepositoryMock.save(animeToSave)).thenReturn(Mono.just(anime));
+
+        StepVerifier.create(animeService.save(animeToSave))
+                .expectSubscription()
+                .expectNext(anime)
+                .verifyComplete();
+    }
+
+    @Test
+    void delete() {
+        when(animeRepositoryMock.delete(ArgumentMatchers.any(Anime.class))).thenReturn(Mono.empty());
+        when(animeRepositoryMock.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.just(anime));
+
+        StepVerifier.create(animeService.delete(1))
+                .expectSubscription()
+                .verifyComplete();
+    }
+
+    @Test
+    void deleteShouldReturnMonoErrorWhenEmptyMonoReturned() {
+        when(animeRepositoryMock.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.empty());
+
+        StepVerifier.create(animeService.delete(1))
+                .expectSubscription()
+                .expectError(ResponseStatusException.class)
+                .verify();
+    }
+
+    @Test
+    void updateShouldReturnEmptyMono() {
+        when(animeRepositoryMock.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.just(anime));
+        when(animeRepositoryMock.save(anime)).thenReturn(Mono.just(anime));
+
+        StepVerifier.create(animeService.update(anime))
+                .expectSubscription()
+                .verifyComplete();
+    }
+
+    @Test
+    void updateShouldReturnMonoErrorIfAnimeDoesNotExist() {
+        when(animeRepositoryMock.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.empty());
+
+        StepVerifier.create(animeService.update(anime))
+                .expectSubscription()
+                .expectError(ResponseStatusException.class)
+                .verify();
+    }
 
 
 }

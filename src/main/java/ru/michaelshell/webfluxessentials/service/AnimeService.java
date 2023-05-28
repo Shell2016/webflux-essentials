@@ -30,7 +30,6 @@ public class AnimeService {
         return Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Anime not found"));
     }
 
-
     public Mono<Anime> save(Anime anime) {
         return animeRepository.save(anime);
     }

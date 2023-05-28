@@ -16,14 +16,8 @@ public final class AnimeCreator {
 
     public static Anime createAnimeToSave() {
         return Anime.builder()
-                .name("Anime to save")
+                .name("Test name")
                 .build();
     }
 
-    public static Anime createAnimeToUpdate() {
-        return Anime.builder()
-                .name("Anime to update")
-                .id(1)
-                .build();
-    }
 }
