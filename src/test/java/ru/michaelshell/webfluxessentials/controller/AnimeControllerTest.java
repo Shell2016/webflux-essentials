@@ -1,6 +1,5 @@
 package ru.michaelshell.webfluxessentials.controller;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,7 +7,6 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import reactor.blockhound.BlockHound;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -29,10 +27,10 @@ class AnimeControllerTest {
 
     private final Anime anime = AnimeCreator.createValidAnime();
 
-    @BeforeAll
-    static void blockHoundSetup() {
-        BlockHound.install();
-    }
+//    @BeforeAll
+//    static void blockHoundSetup() {
+//        BlockHound.install();
+//    }
 
     @Test
     void findAllReturnFluxWhenSuccessful() {

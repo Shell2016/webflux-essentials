@@ -1,6 +1,5 @@
 package ru.michaelshell.webfluxessentials.service;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,7 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.server.ResponseStatusException;
-import reactor.blockhound.BlockHound;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -26,17 +24,17 @@ import static org.mockito.Mockito.when;
 class AnimeServiceTest {
 
     @Mock
-    private AnimeRepository animeRepositoryMock;
+    private AnimeRepository animeRepository;
 
     @InjectMocks
     private AnimeService animeService;
 
     private final Anime anime = AnimeCreator.createValidAnime();
 
-    @BeforeAll
-    static void blockHoundSetup() {
-        BlockHound.install();
-    }
+//    @BeforeAll
+//    static void blockHoundSetup() {
+//        BlockHound.install();
+//    }
 
     @Test
     @Disabled("blockhound tested")
@@ -56,7 +54,7 @@ class AnimeServiceTest {
     @Test
     @DisplayName("findAll return a flux of anime")
     void findAllReturnFluxWhenSuccessful() {
-        when(animeRepositoryMock.findAll()).thenReturn(Flux.just(anime));
+        when(animeRepository.findAll()).thenReturn(Flux.just(anime));
 
         StepVerifier.create(animeService.findAll())
                 .expectSubscription()
@@ -67,7 +65,7 @@ class AnimeServiceTest {
     @Test
     @DisplayName("findById return Mono of anime")
     void findByIdReturnsMono() {
-        when(animeRepositoryMock.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.just(anime));
+        when(animeRepository.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.just(anime));
 
         StepVerifier.create(animeService.findById(1))
                 .expectSubscription()
@@ -78,7 +76,7 @@ class AnimeServiceTest {
     @Test
     @DisplayName("findById return Mono error when empty mono returned")
     void findByIdReturnsMonoErrorWhenEmptyMonoReturned() {
-        when(animeRepositoryMock.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.empty());
+        when(animeRepository.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.empty());
 
         StepVerifier.create(animeService.findById(1))
                 .expectSubscription()
@@ -90,7 +88,7 @@ class AnimeServiceTest {
     @DisplayName("save returns mono of anime")
     void saveReturnsMono() {
         Anime animeToSave = AnimeCreator.createAnimeToSave();
-        when(animeRepositoryMock.save(animeToSave)).thenReturn(Mono.just(anime));
+        when(animeRepository.save(animeToSave)).thenReturn(Mono.just(anime));
 
         StepVerifier.create(animeService.save(animeToSave))
                 .expectSubscription()
@@ -100,8 +98,8 @@ class AnimeServiceTest {
 
     @Test
     void delete() {
-        when(animeRepositoryMock.delete(ArgumentMatchers.any(Anime.class))).thenReturn(Mono.empty());
-        when(animeRepositoryMock.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.just(anime));
+        when(animeRepository.delete(ArgumentMatchers.any(Anime.class))).thenReturn(Mono.empty());
+        when(animeRepository.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.just(anime));
 
         StepVerifier.create(animeService.delete(1))
                 .expectSubscription()
@@ -110,7 +108,7 @@ class AnimeServiceTest {
 
     @Test
     void deleteShouldReturnMonoErrorWhenEmptyMonoReturned() {
-        when(animeRepositoryMock.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.empty());
+        when(animeRepository.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.empty());
 
         StepVerifier.create(animeService.delete(1))
                 .expectSubscription()
@@ -120,8 +118,8 @@ class AnimeServiceTest {
 
     @Test
     void updateShouldReturnEmptyMono() {
-        when(animeRepositoryMock.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.just(anime));
-        when(animeRepositoryMock.save(anime)).thenReturn(Mono.just(anime));
+        when(animeRepository.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.just(anime));
+        when(animeRepository.save(anime)).thenReturn(Mono.just(anime));
 
         StepVerifier.create(animeService.update(anime))
                 .expectSubscription()
@@ -130,7 +128,7 @@ class AnimeServiceTest {
 
     @Test
     void updateShouldReturnMonoErrorIfAnimeDoesNotExist() {
-        when(animeRepositoryMock.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.empty());
+        when(animeRepository.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.empty());
 
         StepVerifier.create(animeService.update(anime))
                 .expectSubscription()
