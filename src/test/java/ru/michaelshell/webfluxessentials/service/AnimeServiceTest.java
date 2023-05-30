@@ -17,6 +17,7 @@ import ru.michaelshell.webfluxessentials.repository.AnimeRepository;
 import ru.michaelshell.webfluxessentials.util.AnimeCreator;
 
 import java.time.Duration;
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 
@@ -94,6 +95,30 @@ class AnimeServiceTest {
                 .expectSubscription()
                 .expectNext(anime)
                 .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("saveAll returns flux of animes")
+    void saveAllReturnsFluxOfAnimes() {
+        Anime animeToSave = AnimeCreator.createAnimeToSave();
+        when(animeRepository.saveAll(List.of(animeToSave, animeToSave))).thenReturn(Flux.just(anime, anime));
+
+        StepVerifier.create(animeService.saveAll(List.of(animeToSave, animeToSave)))
+                .expectSubscription()
+                .expectNext(anime, anime)
+                .verifyComplete();
+    }
+
+    @Test
+    void saveAllReturnsMonoErrorIfNameNotValid() {
+        Anime animeToSave = AnimeCreator.createAnimeToSave();
+        when(animeRepository.saveAll(ArgumentMatchers.anyIterable())).thenReturn(Flux.just(anime, anime.withName("")));
+
+        StepVerifier.create(animeService.saveAll(List.of(animeToSave, animeToSave.withName(""))))
+                .expectSubscription()
+                .expectNext(anime)
+                .expectError(ResponseStatusException.class)
+                .verify();
     }
 
     @Test

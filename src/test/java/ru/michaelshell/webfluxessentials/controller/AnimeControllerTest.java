@@ -14,13 +14,15 @@ import ru.michaelshell.webfluxessentials.entity.Anime;
 import ru.michaelshell.webfluxessentials.service.AnimeService;
 import ru.michaelshell.webfluxessentials.util.AnimeCreator;
 
+import java.util.List;
+
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 class AnimeControllerTest {
 
     @Mock
-    private AnimeService animeServiceMock;
+    private AnimeService animeService;
 
     @InjectMocks
     private AnimeController animeController;
@@ -34,7 +36,7 @@ class AnimeControllerTest {
 
     @Test
     void findAllReturnFluxWhenSuccessful() {
-        when(animeServiceMock.findAll()).thenReturn(Flux.just(anime));
+        when(animeService.findAll()).thenReturn(Flux.just(anime));
 
         StepVerifier.create(animeController.findAll())
                 .expectSubscription()
@@ -45,7 +47,7 @@ class AnimeControllerTest {
     @Test
     @DisplayName("findById return Mono of anime")
     void findByIdReturnsMono() {
-        when(animeServiceMock.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.just(anime));
+        when(animeService.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.just(anime));
 
         StepVerifier.create(animeController.findById(1))
                 .expectSubscription()
@@ -57,7 +59,7 @@ class AnimeControllerTest {
     @DisplayName("save returns mono of anime")
     void saveReturnsMono() {
         Anime animeToSave = AnimeCreator.createAnimeToSave();
-        when(animeServiceMock.save(animeToSave)).thenReturn(Mono.just(anime));
+        when(animeService.save(animeToSave)).thenReturn(Mono.just(anime));
 
         StepVerifier.create(animeController.save(animeToSave))
                 .expectSubscription()
@@ -66,8 +68,19 @@ class AnimeControllerTest {
     }
 
     @Test
+    void batchSaveReturnFluxOfAnime() {
+        Anime animeToSave = AnimeCreator.createAnimeToSave();
+        when(animeService.saveAll(List.of(animeToSave, animeToSave))).thenReturn(Flux.just(anime, anime));
+
+        StepVerifier.create(animeController.batchSave(List.of(animeToSave, animeToSave)))
+                .expectSubscription()
+                .expectNext(anime, anime)
+                .verifyComplete();
+    }
+
+    @Test
     void delete() {
-        when(animeServiceMock.delete(ArgumentMatchers.anyInt())).thenReturn(Mono.empty());
+        when(animeService.delete(ArgumentMatchers.anyInt())).thenReturn(Mono.empty());
 
         StepVerifier.create(animeController.delete(1))
                 .expectSubscription()
@@ -77,7 +90,7 @@ class AnimeControllerTest {
 
     @Test
     void updateShouldReturnEmptyMono() {
-        when(animeServiceMock.update(anime)).thenReturn(Mono.empty());
+        when(animeService.update(anime)).thenReturn(Mono.empty());
 
         StepVerifier.create(animeController.update(anime, 1))
                 .expectSubscription()

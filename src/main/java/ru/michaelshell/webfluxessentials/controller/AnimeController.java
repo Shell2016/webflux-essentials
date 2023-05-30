@@ -9,6 +9,8 @@ import reactor.core.publisher.Mono;
 import ru.michaelshell.webfluxessentials.entity.Anime;
 import ru.michaelshell.webfluxessentials.service.AnimeService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/animes")
 @RequiredArgsConstructor
@@ -32,6 +34,12 @@ public class AnimeController {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Anime> save(@Valid @RequestBody Anime anime) {
         return animeService.save(anime);
+    }
+
+    @PostMapping("batch")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Flux<Anime> batchSave(@RequestBody List<Anime> animes) {
+        return animeService.saveAll(animes);
     }
 
     @PutMapping("{id}")

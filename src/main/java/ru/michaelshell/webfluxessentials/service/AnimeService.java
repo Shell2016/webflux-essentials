@@ -4,11 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.michaelshell.webfluxessentials.entity.Anime;
 import ru.michaelshell.webfluxessentials.repository.AnimeRepository;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -34,6 +38,18 @@ public class AnimeService {
         return animeRepository.save(anime);
     }
 
+    @Transactional
+    public Flux<Anime> saveAll(List<Anime> animes) {
+        return animeRepository.saveAll(animes)
+                .doOnNext(this::throwResponseStatusExceptionWhenEmptyName);
+    }
+
+    private void throwResponseStatusExceptionWhenEmptyName(Anime anime) {
+        if (!StringUtils.hasText(anime.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid name");
+        }
+    }
+
     public Mono<Void> update(Anime anime) {
         return findById(anime.getId())
                 .flatMap(animeRepository::save)
@@ -44,4 +60,6 @@ public class AnimeService {
         return findById(id)
                 .flatMap(animeRepository::delete);
     }
+
+
 }
