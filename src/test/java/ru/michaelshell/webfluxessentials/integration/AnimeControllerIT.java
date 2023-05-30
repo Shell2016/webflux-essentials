@@ -21,6 +21,7 @@ import ru.michaelshell.webfluxessentials.service.AnimeService;
 import ru.michaelshell.webfluxessentials.util.AnimeCreator;
 
 import java.time.Duration;
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 
@@ -48,6 +49,7 @@ class AnimeControllerIT {
         when(animeRepository.findById(ArgumentMatchers.anyInt())).thenReturn(Mono.just(anime));
         when(animeRepository.save(animeToSave)).thenReturn(Mono.just(anime));
         when(animeRepository.delete(ArgumentMatchers.any(Anime.class))).thenReturn(Mono.empty());
+        when(animeRepository.saveAll(List.of(animeToSave, animeToSave))).thenReturn(Flux.just(anime, anime));
     }
 
     @Test
@@ -165,6 +167,35 @@ class AnimeControllerIT {
                 .uri("/animes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(animeWithEmptyName))
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.status").isEqualTo(400);
+    }
+
+    @Test
+    void batchSave() {
+         webTestClient
+                .post()
+                .uri("/animes/batch")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(List.of(animeToSave, animeToSave)))
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBodyList(Anime.class)
+                .hasSize(2)
+                .contains(anime);
+    }
+
+    @Test
+    void batchSaveReturnsErrorWhenNameIsInvalid() {
+        when(animeRepository.saveAll(ArgumentMatchers.anyIterable())).thenReturn(Flux.just(anime, anime.withName("")));
+
+        webTestClient
+                .post()
+                .uri("/animes/batch")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(List.of(animeToSave, animeToSave)))
                 .exchange()
                 .expectStatus().isBadRequest()
                 .expectBody()
